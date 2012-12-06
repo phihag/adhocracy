@@ -1,8 +1,9 @@
 import logging
 
 import formencode
-from pylons import request, tmpl_context as c
+from pylons import request, tmpl_context as c, url
 from pylons.i18n import _, lazy_ugettext as L_
+from pylons.controllers.util import redirect
 
 from repoze.what.plugins.pylonshq import ActionProtector
 
@@ -14,6 +15,7 @@ from adhocracy.lib.helpers import base_url
 from adhocracy.lib.mail import to_user
 from adhocracy.lib.templating import render
 from adhocracy.lib.util import random_token
+from adhocracy.lib.search import index
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +38,14 @@ class AdminController(BaseController):
     @ActionProtector(has_permission("global.admin"))
     def index(self):
         return render("/admin/index.html")
+
+    @ActionProtector(has_permission("global.admin"))
+    def update_index(self):
+        for entity_type in model.refs.TYPES:
+            if hasattr( entity_type, "all" ):
+                for entity in entity_type.all():
+                    index.update( entity )
+        redirect(url(controller='admin', action='index'))
 
     @RequireInternalRequest()
     @ActionProtector(has_permission("global.admin"))
@@ -98,8 +108,7 @@ class AdminController(BaseController):
                 model.meta.Session.commit()
                 users.append(user)
                 created.append(user.user_name)
-                url = base_url(c.instance,
-                               path="/user/%s/activate?c=%s" % (
+                url = base_url("/user/%s/activate?c=%s" % (
                                    user.user_name,
                                    user.activation_code))
 
@@ -108,12 +117,6 @@ class AdminController(BaseController):
                 to_user(user, form_result['email_subject'], body,
                         decorate_body=False)
                 mailed.append(user.user_name)
-                if c.instance:
-                    membership = model.Membership(user, c.instance,
-                                                  c.instance.default_group)
-                    model.meta.Session.expunge(membership)
-                    model.meta.Session.add(membership)
-                    model.meta.Session.commit()
 
             except Exception, E:
                 log.error('user import for user %s, email %s, exception %s' %

@@ -149,7 +149,7 @@ var adhocracy = adhocracy || {};
     /**
      * Initialize the tooltips for all correctly marked
      * elements found inside baseSelector. If baseSelector
-     * is not given, it searchs for all elements in the
+     * is not given, it searches for all elements in the
      * document body.
      *
      * @param {string} baseSelector A selector string that can be
@@ -245,7 +245,9 @@ var adhocracy = adhocracy || {};
         if ($.fn.autocomplete === undefined) {
             return;
         }
-        $(selector).autocomplete('/tag/autocomplete', {
+        var $selected = $(selector);
+        var acUrl = $selected.data('instance-baseurl') + 'tag/autocomplete';
+        $selected.autocomplete(acUrl, {
             autoFill: false,
             dataType: 'json',
             formatItem: function (data, i, max, val) {
@@ -295,15 +297,23 @@ var adhocracy = adhocracy || {};
         });
     };
 
-    adhocracy.helpers.updateBadgePreview = function (selector, color) {
+    adhocracy.helpers.updateBadgePreview = function (selector, color, visible, title) {
         var wrapper = $(selector),
             stylerule,
             styleelement;
+        if (title) {
+            $('.badge_dummy.abadge').text(title);
+        }
         if (color !== undefined) {
             if (!wrapper.is(":visible")) {
                 wrapper.removeClass('hidden');
             }
-            stylerule = '.badge_dummy.abadge:before { color: ' + color + ';';
+            if (visible) {
+                stylerule = '.badge_dummy.abadge:before { color: ' + color + ';}';
+            } else {
+                stylerule = '.badge_dummy.abadge { visibility: hidden;}';
+            }
+
             if ($('#dummystyle').length === 0) {
                 $('head').append(
                     '<style id="dummystyle" type="text/css"></style>'
@@ -312,21 +322,23 @@ var adhocracy = adhocracy || {};
             $('#dummystyle').text(stylerule);
         }
     };
-    adhocracy.helpers.initializeBadgeColorPicker = function (selector, storagekey) {
-        var current_color = $(selector).val(),
-            updatePreview = adhocracy.helpers.updateBadgePreview;
+    adhocracy.helpers.initializeBadgeColorPicker = function (selector, visibleSelector, titleSelector, storagekey) {
+        var updatePreview = adhocracy.helpers.updateBadgePreview;
         $(selector).spectrum({
             preferredFormat: "hex",
             showPalette: true,
             showSelectionPalette: true,
             localStorageKey: storagekey,
             change: function (color) {
-                updatePreview('#badge-preview', color.toHexString());
+                updatePreview('#badge-preview', color.toHexString(), visibleSelector);
             }
         });
-        if (current_color) {
-            updatePreview('#badge-preview', current_color);
-        }
+        var update = function() {
+            updatePreview('#badge-preview', $(selector).val(), $(visibleSelector).is(':checked'), $(titleSelector).val());
+        };
+        $(visibleSelector).change(update);
+        $(titleSelector).change(update);
+        update();
     };
 
 }());
@@ -342,8 +354,8 @@ $(document).ready(function () {
     adhocracy.helpers.initializeUserAutocomplete(".userCompleted");
     adhocracy.overlay.bindOverlays('body');
 
-    // initial jquery label_over
-    $('.label_over label').labelOver('over-apply');
+    // initial jquery-placeholder
+    $('input, textarea').placeholder();
 
     // comments
     $('.comment, .paper').hover(
@@ -400,7 +412,8 @@ $(document).ready(function () {
         var comment_id = $(this).data('comment');
         var comment_form = $('#' + comment_edit_form_id).attr('comment_id');
         if (!comment_form) {
-            var form_url = '/comment/' + comment_id + '/edit.ajax';
+            var baseUrl = $(this).data('instance-baseurl');
+            var form_url = baseUrl + 'comment/' + comment_id + '/edit.ajax';
             var comment_div = $('#' + c_id);
             // create a container and load the form into it.
             var form_div = comment_div.add('<div></div>').not(comment_div);
@@ -600,5 +613,30 @@ $(document).ready(function () {
                 adhocracy.overlay.bindOverlays(target);
             }
         });
+    });
+
+    $('#feedback_button').toggle(
+        function () {
+            $('#feedback').animate({right: '0px'});
+            return false;
+        },
+        function () {
+            $('#feedback').animate({right: '-350px'});
+            return false;
+        }
+    );
+
+    $('.showmore').each(function () {
+        var self = $(this);
+        self.find('.showmore_morelink').bind('click', function (event) {
+                self.find('.showmore_collapsed').css('display', 'none');
+                self.find('.showmore_uncollapsed').css('display', 'inline');
+                return false;
+            });
+        self.find('.showmore_lesslink').bind('click', function (event) {
+                self.find('.showmore_collapsed').css('display', 'inline');
+                self.find('.showmore_uncollapsed').css('display', 'none');
+                return false;
+            });
     });
 });
