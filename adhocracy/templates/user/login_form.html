@@ -1,9 +1,5 @@
 <%
 from urllib import urlencode
-came_from = request.params.get('came_from', '')
-query_string = ''
-if came_from:
-    query_string = '?%s' % urlencode({'came_from': came_from.encode('utf-8')})
 from pylons.i18n import _
 import adhocracy.lib.helpers as h
 
