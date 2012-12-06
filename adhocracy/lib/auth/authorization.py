@@ -43,6 +43,9 @@ class InstanceGroupSourceAdapter(SqlGroupsAdapter):
 
     def _get_item_as_row(self, item_name):
         q = model.meta.Session.query(model.User)
+        login_type = u'email' if u'@' in item_name else u'user_name'
+        login_attr = getattr(model.User, login_type)
+        q = q.filter(login_attr == item_name)
         q = q.options(eagerload(model.User.memberships))
 
         try:
