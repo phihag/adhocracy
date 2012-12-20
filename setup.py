@@ -35,7 +35,7 @@ setup(
         "WebOb==1.2.3",
         "SQLAlchemy==0.7.9",
         "sqlalchemy-migrate>=0.6",
-        "FormEncode>=1.2.4",
+        "FormEncode>=1.2.5",
         "repoze.who>=2.0",
         "repoze.what==1.0.8",  # 1.0.9 conflicts with repoze.who>=2.0
         "repoze.who.plugins.sa==1.0rc2",
