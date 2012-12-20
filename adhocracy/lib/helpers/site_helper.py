@@ -1,4 +1,4 @@
-from pylons import config, g
+from pylons import config, app_globals as g
 from pylons.i18n import _
 from paste.deploy.converters import asbool
 from adhocracy.model import meta, instance_filter as ifilter
@@ -13,17 +13,6 @@ def domain():
 
 def name():
     return config.get('adhocracy.site.name', _("Adhocracy"))
-
-
-def absolute_url(path='', instance=CURRENT_INSTANCE):
-    """
-    Shortcut in order to construct an absolute URL.
-
-    Path and instance parameters as in base_url.
-    """
-
-    return base_url(path, instance, absolute=True)
-
 
 def base_url(path='', instance=CURRENT_INSTANCE, absolute=False):
     """
@@ -53,10 +42,10 @@ def base_url(path='', instance=CURRENT_INSTANCE, absolute=False):
             protocol = config.get('adhocracy.protocol', 'http').strip()
             domain = config.get('adhocracy.domain').strip()
 
-            return '%s://%s%s%s' % (protocol, domain, prefix, path)
+            result = '%s://%s%s%s' % (protocol, domain, prefix, path)
 
         else:
-            return '%s%s' % (prefix, path)
+            result = '%s%s' % (prefix, path)
 
     else:
         current_instance = ifilter.get_instance()
@@ -76,12 +65,17 @@ def base_url(path='', instance=CURRENT_INSTANCE, absolute=False):
             else:
                 subdomain = '%s.' % instance.key
 
-            return '%s://%s%s%s' % (protocol, subdomain, domain, path)
+            result = '%s://%s%s%s' % (protocol, subdomain, domain, path)
 
         else:
-            return path
+            result = path
+
+    if result == '':
+        result = '/'
+
+    return result
 
 
 def shortlink_url(delegateable):
     path = "/d/%s" % delegateable.id
-    return base_url(path, None)
+    return base_url(path, None, absolute=True)

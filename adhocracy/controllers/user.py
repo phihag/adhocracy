@@ -3,7 +3,7 @@ import logging
 import formencode
 from formencode import ForEach, htmlfill, validators
 
-from pylons import config, request, session, tmpl_context as c
+from pylons import config, request, response, session, tmpl_context as c
 from pylons.controllers.util import redirect
 from pylons.decorators import validate
 from pylons.i18n import _
@@ -134,6 +134,10 @@ class UserController(BaseController):
     @RequireInternalRequest(methods=['POST'])
     @validate(schema=UserCreateForm(), form="new", post_only=True)
     def create(self):
+        if not h.allow_user_registration():
+            return ret_abort(_("Sorry, registration has been disabled by administrator."),
+                                category='error', code=403)
+
         require.user.create()
         if self.email_is_blacklisted(self.form_result['email']):
             return ret_abort(_("Sorry, but we don't accept registrations with "
@@ -251,7 +255,8 @@ class UserController(BaseController):
         model.meta.Session.add(c.page_user)
         model.meta.Session.commit()
         url = h.base_url("/user/%s/reset?c=%s" % (c.page_user.user_name,
-                                                  c.page_user.reset_code))
+                                                  c.page_user.reset_code),
+                         absolute=True)
         body = (
             _("you have requested that your password be reset. In order "
               "to confirm the validity of your claim, please open the "
@@ -307,7 +312,7 @@ class UserController(BaseController):
         model.meta.Session.commit()
         if code.startswith(model.User.IMPORT_MARKER):
             # Users imported by admins
-            login_user(c.page_user, request)
+            login_user(c.page_user, request, response)
             h.flash(_("Welcome to %s") % h.site.name(), 'success')
             if c.instance:
                 membership = model.Membership(c.page_user, c.instance,
