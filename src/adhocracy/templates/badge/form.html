@@ -24,6 +24,15 @@ ${self.form()}
     <input name="title" id="badge_form_title" class="" style="width:20em"
            value="" autofocus />
 
+    %if c.enable_gender:
+    <label><span style="display: inline-block; min-width: 9em;">${_(".. for a female user:")}</span>
+        <input name="title_f" />
+    </label>
+    <label><span style="display: inline-block; min-width: 9em;">${_(".. for a male user:")}</span>
+        <input name="title_m" />
+    </label>
+    %endif
+
     <label for="description" class="">${_("Badge description")}</label>
     <textarea name="description" id="description" 
               style="width:90%; height: 10em"></textarea>
@@ -132,6 +141,10 @@ ${self.form()}
         ${components.proposal_sort_order('behavior_proposal_sort_order', c.sorting_orders, include_empty=True)}
     </label>
     %endif
+    %endif
+
+    %if c.enable_gender:
+
     %endif
 
     <div class="mainbar">

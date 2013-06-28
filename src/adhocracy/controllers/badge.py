@@ -5,6 +5,7 @@ from pylons import request, tmpl_context as c
 from pylons.controllers.util import redirect
 from pylons.i18n import _
 
+from adhocracy import config
 from adhocracy.forms.common import ValidInstanceGroup
 from adhocracy.forms.common import ValidHTMLColor
 from adhocracy.forms.common import ContainsChar
@@ -66,6 +67,9 @@ class CategoryBadgeUpdateForm(CategoryBadgeForm):
 class UserBadgeForm(BadgeForm):
     group = Any(validators.Empty, ValidInstanceGroup())
     display_group = validators.StringBoolean(if_missing=False)
+    if config.get_bool('adhocracy.enable_gender'):
+        title_f = validators.String(max=40)
+        title_m = validators.String(max=40)
 
 
 class ThumbnailBadgeForm(BadgeForm):
@@ -154,10 +158,11 @@ class BadgeController(BaseController):
             'form_type': 'add',
             'groups': Group.all_instance(),
             'sorting_orders': PROPOSAL_SORTS,
+            'enable_gender': config.get_bool('adhocracy.enable_gender'),
         }
         if badge_type is not None:
             data['badge_type'] = badge_type
-        
+
         defaults = {'visible': True,
                     'select_child_description': '',
                     }
@@ -228,8 +233,14 @@ class BadgeController(BaseController):
             self.form_result)
         group = self.form_result.get('group')
         display_group = self.form_result.get('display_group')
-        UserBadge.create(title, color, visible, description, group,
-                         display_group, instance)
+        badge = UserBadge.create(title, color, visible, description, group,
+                                 display_group, instance)
+        if behavior_enabled():
+            badge.behavior_proposal_sort_order = self.form_result.get(
+                'behavior_proposal_sort_order')
+        if config.get_bool('adhocracy.enable_gender'):
+            badge.title_f = self.form_result.get('title_f')
+            badge.title_m = self.form_result.get('title_m')
         # commit cause redirect() raises an exception
         meta.Session.commit()
         redirect(self.base_url)
@@ -333,6 +344,7 @@ class BadgeController(BaseController):
             ),
             'form_type': 'update',
             'sorting_orders': PROPOSAL_SORTS,
+            'enable_gender': config.get_bool('adhocracy.enable_gender'),
         }
         self._set_parent_categories(exclude=badge)
 
@@ -345,7 +357,9 @@ class BadgeController(BaseController):
             visible=badge.visible,
             display_group=badge.display_group,
             instance=instance_default,
-            behavior_proposal_sort_order=badge.behavior_proposal_sort_order)
+            behavior_proposal_sort_order=badge.behavior_proposal_sort_order,
+            title_f=badge.title_f,
+            title_m=badge.title_m)
         if isinstance(badge, UserBadge):
             c.groups = Group.all_instance()
             defaults['group'] = badge.group and badge.group.code or ''
@@ -390,6 +404,9 @@ class BadgeController(BaseController):
         if behavior_enabled():
             badge.behavior_proposal_sort_order = self.form_result.get(
                 'behavior_proposal_sort_order')
+        if config.get_bool('adhocracy.enable_gender'):
+            badge.title_f = self.form_result.get('title_f')
+            badge.title_m = self.form_result.get('title_m')
         meta.Session.commit()
         h.flash(_("Badge changed successfully"), 'success')
         redirect(self.base_url)
