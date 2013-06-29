@@ -127,6 +127,7 @@ class BadgeTransform(_Transform):
         _set_optional(obj, data, 'description')
         _set_optional(obj, data, 'title_m')
         _set_optional(obj, data, 'title_f')
+        _set_optional(obj, data, 'title_o')
 
     def _export(self, obj):
         return {
@@ -137,6 +138,7 @@ class BadgeTransform(_Transform):
             'adhocracy_badge_type': obj.polymorphic_identity,
             'title_f': obj.title_f,
             'title_m': obj.title_m,
+            'title_o': obj.title_o,
         }
 
 
