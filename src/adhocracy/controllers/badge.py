@@ -70,6 +70,7 @@ class UserBadgeForm(BadgeForm):
     if config.get_bool('adhocracy.enable_gender'):
         title_f = validators.String(max=40)
         title_m = validators.String(max=40)
+        title_o = validators.String(max=40)
 
 
 class ThumbnailBadgeForm(BadgeForm):
@@ -241,6 +242,7 @@ class BadgeController(BaseController):
         if config.get_bool('adhocracy.enable_gender'):
             badge.title_f = self.form_result.get('title_f')
             badge.title_m = self.form_result.get('title_m')
+            badge.title_o = self.form_result.get('title_o')
         # commit cause redirect() raises an exception
         meta.Session.commit()
         redirect(self.base_url)
@@ -359,7 +361,8 @@ class BadgeController(BaseController):
             instance=instance_default,
             behavior_proposal_sort_order=badge.behavior_proposal_sort_order,
             title_f=badge.title_f,
-            title_m=badge.title_m)
+            title_m=badge.title_m,
+            title_o=badge.title_o)
         if isinstance(badge, UserBadge):
             c.groups = Group.all_instance()
             defaults['group'] = badge.group and badge.group.code or ''
@@ -407,6 +410,7 @@ class BadgeController(BaseController):
         if config.get_bool('adhocracy.enable_gender'):
             badge.title_f = self.form_result.get('title_f')
             badge.title_m = self.form_result.get('title_m')
+            badge.title_o = self.form_result.get('title_o')
         meta.Session.commit()
         h.flash(_("Badge changed successfully"), 'success')
         redirect(self.base_url)

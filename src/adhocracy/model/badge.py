@@ -38,6 +38,7 @@ badge_table = Table(
     Column('visible', Boolean, default=True),
     Column('title_f', Unicode(40), nullable=False),
     Column('title_m', Unicode(40), nullable=False),
+    Column('title_o', Unicode(40), nullable=False),
     # attributes for ThumbnailBadges
     Column('thumbnail', LargeBinary, default=None, nullable=True),
     Column('behavior_proposal_sort_order',  Unicode(50), nullable=True),

@@ -33,6 +33,8 @@ else:
             acontent = badge.title_f
         elif gender == 'm' and badge.title_m:
             acontent = badge.title_m
+        elif badge.title_o:
+            acontent = badge.title_o
 %>
 <span class="${spanclass}">
     <span class="${aclass}" title="${atitle}">${(badge == 'dummy' or badge.type == "thumbnail") and h.literal(acontent) or acontent}</span>
