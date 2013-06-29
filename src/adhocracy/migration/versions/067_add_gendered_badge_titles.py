@@ -9,3 +9,5 @@ def upgrade(migrate_engine):
     col.create(table)
     col = Column('title_m', Unicode(40), nullable=True)
     col.create(table)
+    col = Column('title_o', Unicode(40), nullable=True)
+    col.create(table)
