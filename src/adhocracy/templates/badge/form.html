@@ -25,14 +25,14 @@ ${self.form()}
            value="" autofocus />
 
     %if c.enable_gender:
-    <label><span style="display: inline-block; min-width: 9em;">${_(".. for a female user:")}</span>
+    <label><span style="display: inline-block; min-width: 9em;">${_("Unisex form:")}</span>
+        <input name="title_o" />
+    </label>
+    <label><span style="display: inline-block; min-width: 9em;">${_("Female form:")}</span>
         <input name="title_f" />
     </label>
-    <label><span style="display: inline-block; min-width: 9em;">${_(".. for a male user:")}</span>
+    <label><span style="display: inline-block; min-width: 9em;">${_("Male form:")}</span>
         <input name="title_m" />
-    </label>
-    <label><span style="display: inline-block; min-width: 9em;">${_(".. for all other users:")}</span>
-        <input name="title_o" />
     </label>
     %endif
 
