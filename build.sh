@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -x
+
 DEFAULT_BRANCH=develop
 GIT_URL=https://github.com/liqd/adhocracy
 SERVICE_TEMPLATE=etc/sysv-init.in
