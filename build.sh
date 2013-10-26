@@ -304,7 +304,7 @@ if [ '!' -x bin/python ]; then
             # Install setuptools
             mkdir -p "$ST_TMPDIR"
             download https://bitbucket.org/pypa/setuptools/raw/0.7.2/ez_setup.py "${ST_TMPDIR}/ez_setup.py"
-            (cd eggs/build_sh_workarounds/setuptools/ && PYTHONUSERBASE="$ST_TMPDIR" python ez_setup.py --user)
+            (cd eggs/build_sh_workarounds/setuptools/ && PYTHONPATH="$PYTHONPATH:$ST_TMPDIR" PYTHONUSERBASE="$ST_TMPDIR" python ez_setup.py --user)
 
         fi
         (cd python && PYTHONUSERBASE="$ST_TMPDIR" python bootstrap.py)
