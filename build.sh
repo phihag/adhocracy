@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -x
-
 DEFAULT_BRANCH=develop
 GIT_URL=https://github.com/liqd/adhocracy
 SERVICE_TEMPLATE=etc/sysv-init.in
@@ -305,7 +303,6 @@ if [ '!' -x bin/python ]; then
         if [ '!' -e "$ST_TMPDIR"/setuptools/lib/python*/site-packages/setuptools.pth ]; then
             # Install setuptools
             mkdir -p "$ST_TMPDIR"
-            echo "DEBUG))) PYTHONPATH is $PYTHONPATH"
             download https://bitbucket.org/pypa/setuptools/raw/0.7.2/ez_setup.py "${ST_TMPDIR}/ez_setup.py"
             (cd eggs/build_sh_workarounds/setuptools/ && PYTHONUSERBASE="$ST_TMPDIR" python ez_setup.py --user)
 
